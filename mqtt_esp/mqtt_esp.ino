@@ -10,7 +10,7 @@ const char* ssid = "BRAZILINO";            // Nome da rede Wi-Fi
 
 const char* password = "jptrguegabi2012";       // Senha da rede Wi-Fi
 
-const char* mqtt_server = "192.168.100.229";  // Endereço do servidor MQTT
+const char* mqtt_server = "3.142.249.0";  // Endereço do servidor MQTT
 
 
 
