@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Temperatura</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2980b9;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .last-update {
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+
+        .temperature-value {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--dark);
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .celsius {
+            font-size: 2rem;
+            vertical-align: super;
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-top: 1.5rem;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th, .history-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .history-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .history-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .temperature-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #95a5a6;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(52, 152, 219, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-online {
+            background-color: var(--success);
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2);
+        }
+        
+        .status-offline {
+            background-color: var(--danger);
+            box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard de Temperatura</h1>
+            <p>Monitoramento em tempo real</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-thermometer-half card-icon"></i>
+                        Temperatura Atual
+                    </h2>
+                    <div class="api-status">
+                        <span class="status-indicator status-online" id="status-indicator"></span>
+                        <span id="connection-status">Conectado</span>
+                    </div>
+                </div>
+                <div class="temperature-value" id="current-temperature">--<span class="celsius">°C</span></div>
+                <div class="last-update">Última atualização: <span id="last-update">--</span></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-history card-icon"></i>
+                        Histórico Recente
+                    </h2>
+                </div>
+                <div id="history-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Temperatura</th>
+                                <th>Data/Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-data">
+                            <!-- Dados serão inseridos aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="temperature-form">
+            <h2 class="card-title">
+                <i class="fas fa-plus-circle card-icon"></i>
+                Adicionar Nova Temperatura
+            </h2>
+            <form id="add-temperature-form">
+                <div class="form-group">
+                    <label for="temperature" class="form-label">Temperatura (°C)</label>
+                    <input type="number" step="0.1" id="temperature" class="form-control" placeholder="Ex: 23.5" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentTemperature = document.getElementById('current-temperature');
+            const lastUpdate = document.getElementById('last-update');
+            const historyData = document.getElementById('history-data');
+            const addTemperatureForm = document.getElementById('add-temperature-form');
+            const statusIndicator = document.getElementById('status-indicator');
+            const connectionStatus = document.getElementById('connection-status');
+            
+            let apiOffline = false;
+            
+            // Função para formatar a data
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleString('pt-BR');
+            }
+            
+            // Função para mostrar indicador de status da API
+            function updateApiStatus(online) {
+                if (online) {
+                    statusIndicator.className = "status-indicator status-online";
+                    connectionStatus.textContent = "Conectado";
+                    apiOffline = false;
+                } else {
+                    statusIndicator.className = "status-indicator status-offline";
+                    connectionStatus.textContent = "Desconectado";
+                    apiOffline = true;
+                    
+                    // Tentar reconectar após 5 segundos
+                    setTimeout(fetchData, 5000);
+                }
+            }
+            
+            // Função para buscar dados da API
+            async function fetchData() {
+                try {
+                    const response = await fetch('/dados');
+                    
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar dados');
+                    }
+                    
+                    updateApiStatus(true);
+                    
+                    const data = await response.json();
+                    
+                    if (data.length > 0) {
+                        // Atualizar a temperatura atual com o valor mais recente
+                        const latestData = data[data.length - 1];
+                        currentTemperature.innerHTML = `${latestData.temperature}<span class="celsius">°C</span>`;
+                        lastUpdate.textContent = formatDate(latestData.createdAt || new Date());
+                        
+                        // Limpar e preencher a tabela de histórico
+                        historyData.innerHTML = '';
+                        
+                        // Mostrar os 10 registros mais recentes (em ordem inversa)
+                        const recentData = [...data].reverse().slice(0, 10);
+                        
+                        recentData.forEach(item => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${item._id ? item._id.substring(0, 8) + '...' : 'N/A'}</td>
+                                <td>${item.temperature} °C</td>
+                                <td>${formatDate(item.createdAt || new Date())}</td>
+                            `;
+                            historyData.appendChild(row);
+                        });
+                    } else {
+                        currentTemperature.innerHTML = `--<span class="celsius">°C</span>`;
+                        historyData.innerHTML = `<tr><td colspan="3" class="empty-state">Nenhum dado disponível</td></tr>`;
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar dados:', error);
+                    updateApiStatus(false);
+                    
+                    // Mostrar indicação visual de desconexão
+                    if (!apiOffline) {
+                        currentTemperature.innerHTML = `--<span class="celsius">°C</span>`;
+                        lastUpdate.textContent = 'API desconectada';
+                    }
+                }
+            }
+            
+            // Enviar nova temperatura
+            addTemperatureForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const temperatureInput = document.getElementById('temperature');
+                const temperatureValue = parseFloat(temperatureInput.value);
+                
+                try {
+                    const submitButton = addTemperatureForm.querySelector('button[type="submit"]');
+                    const originalButtonText = submitButton.innerHTML;
+                    
+                    // Atualizar botão para indicar envio
+                    submitButton.innerHTML = '<div class="loading"></div> Enviando...';
+                    submitButton.disabled = true;
+                    
+                    const response = await fetch('/dados', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ temperature: temperatureValue })
+                    });
+                    
+                    // Restaurar o botão
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    
+                    if (!response.ok) {
+                        throw new Error('Erro ao enviar dados');
+                    }
+                    
+                    // Limpar o campo do formulário após o envio bem-sucedido
+                    temperatureInput.value = '';
+                    
+                    // Buscar dados atualizados imediatamente após o envio
+                    fetchData();
+                    
+                } catch (error) {
+                    console.error('Erro ao enviar temperatura:', error);
+                    alert('Erro ao enviar temperatura. Tente novamente.');
+                }
+            });
+            
+            // Buscar dados iniciais
+            fetchData();
+            
+            // Configurar atualização automática a cada 2 segundos
+            setInterval(fetchData, 2000);
+        });
+    </script>
+</body>
+</html>
