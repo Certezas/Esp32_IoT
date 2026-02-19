@@ -1,17 +1,19 @@
 {
-  "name": "curso-iot",
+  "name": "trenaeletronica",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "dev": "node --watch ./src/app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ilgner",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "moment": "^2.30.1"
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.3.1"
   }
 }

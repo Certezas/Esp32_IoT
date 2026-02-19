@@ -1,7 +1,3 @@
-/*
-  Sistema de Alarme IoT com Telegram, PIR e Buzzer
-  Baseado no código enviado pelo usuário.
-*/
 #include "CTBot.h"
 
 CTBot myBot;
@@ -10,7 +6,7 @@ String ssid  = "BRAZILINO";
 String pass  = "jptrguegabi2012";
 String token = "8535243759:AAHaMvUAQOLiOaf1w5CYZHmmsrWTir8fqRc"; 
 
-const int buzzerPin = 23;  // Buzzer na porta 23 (Solicitado)
+const int buzzerPin = 23;  // Buzzer na porta 23 
 const int pirPin = 21;     // Sugestão: Ligue o pino OUT do PIR na porta 21
 
 int64_t chatID_Alvo = 0;   // ID do usuário para enviar o alerta (int64_t é o tipo correto para Telegram)
@@ -94,5 +90,5 @@ void loop() {
     movimentoAnterior = movimentoAtual; // Atualiza o estado para a próxima volta do loop
   }
   
-  delay(100); // Pequeno delay para estabilidade e economia de processamento
+  delay(100);
 }
